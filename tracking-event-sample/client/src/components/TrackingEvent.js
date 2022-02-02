@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-// import {fetchData} from "../api/index";
-import axios from 'axios';
+import {fetchData} from "../api/index";
 import TimelineTracking from "./TimelineTracking"
-import TempDataAll from "./TempData.json"
+// import TempDataAll from "./TempData.json"
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-
-
-const API_URL = `http://localhost:5000/data/`;
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -31,70 +28,84 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TrackingEvent = () => {
+    const [loading, setLoading] = useState(true);
+    const [noData, setNoData] = useState(true);
     const [trackingData, setTrackingData] = useState({});
     const [trackingId, setTrackingId] = useState("BPS65O4WYLBWWBR");
 
     const classes = useStyles();
 
-    const changeTracking = (e) => {
-        setTrackingId(e.target.value);
+    const submitTracking = (e) => {
+        e.preventDefault();
+        console.log("New Tacking: ",trackingId);
         getTracking();
     }
 
-    const getTracking = () => {
+    const getTracking = async () =>{
+        setLoading(true);
         try {
-            console.log("tracking oopssss...");
-            axios.get(API_URL+trackingId,{
-                params: {
-                  _limit: 3
-                 }
-              }).then(res => {
-                    var data = JSON.parse(res.data);
-                    var newData = {
-                        tracking: data.label.tracking_number,
-                        external: data.label.external_tracking_number,
-                        data: data.parcel_tracking_items.map(item => (
-                            {
-                                id: item.id,
-                                location: item.location + ", " + item.city,
-                                date: item.timestamp,
-                                code: ((item.tracking_code_vendor||{}).code||"BPS-0000"),
-                                status: (( (((item.tracking_code_vendor||{}).tracking_code_vendor_locales||{}))[0]||{}).description||"Shipping"),
-                            } 
-                        ))
-                    }
-                    // console.log("tracking data", newData);
-                    setTrackingData(newData);
-                })
+            const result = await fetchData(trackingId);
+            if(result.code === 400){setTrackingData({}); setNoData(true);}
+            else{setTrackingData(result.data);setNoData(false);}
         } catch (error) {
-            console.log(error.message);
+          console.error(error.message);
         }
-    };
+        setLoading(false);
+    }
 
-    // useEffect(() => {
-    //     getTracking();
-    // }, [trackingData]);
+    const parseTracking = (resp) =>{
+        try {
+            
+            var data = JSON.parse(resp); 
+            if(data.code !== 400 && !noData){
+                var newData = {
+                    tracking: data.label.tracking_number,
+                    external: data.label.external_tracking_number,
+                    data: data.parcel_tracking_items.map(item => (
+                        {
+                            id: item.id,
+                            location: item.location + ", " + item.city,
+                            date: item.timestamp,
+                            code: ((item.tracking_code_vendor||{}).code||"BPS-0000"),
+                            status: (( (((item.tracking_code_vendor||{}).tracking_code_vendor_locales||{}))[0]||{}).description||"Shipping"),
+                        } 
+                    ))
+                }
+                return newData;
+            }
+            return {};
+        } catch (error) {
+          console.error(error.message);
+        }
+    }
 
-    getTracking();
-
+    useEffect(() => { 
+        // console.log("effect")  
+        getTracking();
+    }, [trackingData]);
+    
     return (
     <div>
         <Paper elevation={3} className={classes.paper}>
             <Typography variant="h6" component="h1">
-                {/* <h1>{"BPS Tracking"}</h1> */}
-                <form className={classes.root} noValidate autoComplete="off">
+                
+                <div><h1>{"BPS Tracking"}</h1></div>
+                <form onSubmit={submitTracking} className={classes.root} noValidate autoComplete="off">
                     <TextField
                         id="outlined-secondary"
                         label="Tracking Id"
                         variant="outlined"
                         color="secondary"
-                        // onInput={(e) => changeTracking(e)}
+                        defaultValue={trackingId}
+                        onChange={(e) => setTrackingId(e.target.value)}
                     />
                 </form>
             </Typography>
         </Paper>
 
-        {(trackingData)? <TimelineTracking {...trackingData}/>:<div>{" No Data available"}</div>}
+        {(trackingData && !loading)? <TimelineTracking {...parseTracking(trackingData)}/>
+        :<CircularProgress/>
+        }
     </div>
     )
 }

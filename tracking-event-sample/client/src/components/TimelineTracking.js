@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TimelineTracking = (props) => {
-  console.log("TimelineTracking: ", props);
+  // console.log("TimelineTracking: ", props);
 
   const classes = useStyles();
   const iconGenerator = (status) => {

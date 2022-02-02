@@ -1,9 +1,5 @@
-import axios from 'axios';
+import axios from 'axios'
 
-const url = `http://localhost:5000/data/BPS65O4WYLBWWBR`;
+const url = process.env.API_URL +`data/`||`http://localhost:5000/data/`;
 
-export const fetchData = () => axios.get(url,{
-    params: {
-      _limit: 3
-     }
-  });
+export const fetchData = (trackingId) => axios.get(url+trackingId,{params: {_limit: 3}});
