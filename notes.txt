@@ -1,0 +1,17 @@
+In our systems we use a lot of API connections and we need to know how is your knowledge about this. 
+
+I want to propose one last test, it will be divided into 2 parts:
+
+1 - Develop a small public Rest API in NODE.JS that generates a JWT token and create a simple view in REACT to consume this API and return the generated token.
+
+
+2 - Build a view in REACT and NODE.JS that consumes and displays the tracking events returned by an API with this endpoint ( https://bps.bringer.dev/public/api/v2/get/parcel/tracking.json?tracking_number=BPS65O4WYLBWWBR )
+For this endpoint use this Bearer token below
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJpYXQiOjE2MDM5MTYyMDAsImV4cCI6MTYzNTQ1MjIwMCwiYXVkIjoiaHR0cHM6Ly9icmluZ2VycGFyY2VsLmNvbSIsImlzcyI6ImZlYXRoZXJzIiwic3ViIjoiNTI1eXM2YWh4d3UyIiwianRpIjoiOGFiYWY3ZGQtYmQ0NS00NzcyLWJhMGQtNDBkMTMwMWI4NDY0In0.I0R5iJOLUASXmelc7dQ6pcEKstIPYwjTkcHvLu4IRk
+
+
+Example of the second view:
+https://bringerparcel.dev/tracking/BPS65O4WYLBWWBR
+
+Please publish this test in a public repository and share it with us so that we can evaluate it.
