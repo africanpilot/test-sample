@@ -1,6 +1,7 @@
 # test-sample
 
 - git clone https://github.com/africanpilot/test-sample.git
+- then cd into each server and client directory and install
 
 ### api-sample is test 1
     - server: npm install; npm run start
